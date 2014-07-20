@@ -1,16 +1,12 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-author: "antekai"
-date: "Monday, July 21, 2014"
-output:
-  html_document:
-    keep_md: yes
----
+# Reproducible Research: Peer Assessment 1
+antekai  
+Monday, July 21, 2014  
 
 ## Loading and preprocessing the data
 After setting our working directory, we can begin to load our data into R. If
 the file `activity.zip` is not in the current working directory, this function will download and read in the required dataset. We also change the column classes to prepare data for analysis in the following steps.
-```{r read_data}
+
+```r
 read_data <- function(){
         fileName <- "activity.zip"
         url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -31,7 +27,8 @@ data <- read_data()
 By using the `aggregate` function, we can subset by date and apply the `sum`
 function to each day to obtain the number of steps taken per day. We first
 visualize this using `barplot` to look at the total number of steps taken per day.
-```{r histogram1}
+
+```r
 barplot_StepsPerDay <- function(data){
         df <- aggregate(steps ~ date, data = data, sum)
         df$date <- as.Date(df$date)
@@ -45,11 +42,14 @@ barplot_StepsPerDay <- function(data){
 barplot_StepsPerDay(data)
 ```
 
+![plot of chunk histogram1](./PA1_template_files/figure-html/histogram1.png) 
+
 ### Mean
 Let's calculate the mean by using the `aggregate` function once again. Since
 `aggregate` returns a `data.frame` object, we can simply call `mean` on the
 steps column.
-```{r mean1}
+
+```r
 mean_StepsPerDay <- function(data){
         df <- aggregate(steps ~ date, data = data, sum)
         mean(df$steps)
@@ -57,14 +57,23 @@ mean_StepsPerDay <- function(data){
 mean_StepsPerDay(data)
 ```
 
+```
+## [1] 10766
+```
+
 ### Median
 We do the same to calculate the median number of steps taken each day.
-```{r median1}
+
+```r
 median_StepsPerDay <- function(data){
         df <- aggregate(steps ~ date, data = data, sum)
         median(df$steps)
 }
 median_StepsPerDay(data)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -73,7 +82,8 @@ median_StepsPerDay(data)
 We can use the `aggregate` function once again to split the data into subsets,
 this time into each 5-minute interval, and call the `mean` function on each to
 get the average number of steps taken, averaged across all days.
-```{r tsplot}
+
+```r
 ts_plot <- function(data){
         df <- aggregate(steps ~ interval, data = data, mean)
         plot(df$interval, df$steps,
@@ -85,15 +95,23 @@ ts_plot <- function(data){
 ts_plot(data)
 ```
 
+![plot of chunk tsplot](./PA1_template_files/figure-html/tsplot.png) 
+
 ### 5-Minute Interval with Maximum Number of Steps on Average
 Since the `aggregate` function returns a data.frame, we can return the row
 with the maximum number of steps averaged across all days by subsetting.
-```{r maxinterval}
+
+```r
 max_interval <- function(){
         df <- aggregate(steps ~ interval, data = data, mean)
         df[which.max(df$steps),]
 }
 max_interval()
+```
+
+```
+##     interval steps
+## 104      835 206.2
 ```
 ## Imputing missing values
 
@@ -101,7 +119,8 @@ max_interval()
 For the missing values, we will be imputing the mean number of steps taken for
 the 5-minute intervals on the assumption that the average daily activity pattern
 is relatively consistent.
-```{r imputation}
+
+```r
 impute_mean <- function(){
         # create data frame with column of indices for NA values
         na_indices <- which(is.na(data$steps))
@@ -120,18 +139,31 @@ imputed_data <- impute_mean()
 ```
 
 ### Histogram
-```{r histgram2}
+
+```r
 barplot_StepsPerDay(imputed_data)
 ```
 
+![plot of chunk histgram2](./PA1_template_files/figure-html/histgram2.png) 
+
 ### Mean
-```{r mean2}
+
+```r
 mean_StepsPerDay(imputed_data)
 ```
 
+```
+## [1] 10766
+```
+
 ### Median
-```{r median2}
+
+```r
 median_StepsPerDay(imputed_data)
+```
+
+```
+## [1] 10766
 ```
 Comparing the imputed dataset to the dataset with missing values, the mean total
 number of steps taken per day stays the same while the median total number of steps
@@ -142,7 +174,8 @@ taken per day shifts up towards the mean.
 ### Adding New Variable
 To approach this problem, we first add a new variable to the imputed dataset
 that indicates whether the given date is a weekend or a weekday.
-```{r weekend}
+
+```r
 # categorizes days of week into weekdays or weekends
 weekend_or_weekday <- function(var){
      if (var %in% c("Sunday", "Saturday")){
@@ -164,7 +197,8 @@ day_of_week_data <- add_WeekEndDay(imputed_data)
 With the `WeekEndDay` variable now indicating whether or not the given date is
 a weekend or a weekday, we can subset the dataset and call our previously made
 `ts_plot` function to create time-series plots for each.
-```{r WeekendVsWeekday}
+
+```r
 library(lattice)
 plot_WeekendVsWeekday <- function(){
         df <- aggregate(steps ~ interval + WeekEndDay, data = day_of_week_data, mean)
@@ -174,6 +208,8 @@ plot_WeekendVsWeekday <- function(){
 }
 plot_WeekendVsWeekday()
 ```
+
+![plot of chunk WeekendVsWeekday](./PA1_template_files/figure-html/WeekendVsWeekday.png) 
 
 Comparing the two time-series plots, we can see that the total steps taken during
 weekends are, on average, greater than that taken during weekday, particularly around
