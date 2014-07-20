@@ -4,6 +4,7 @@ author: "antekai"
 date: "Monday, July 21, 2014"
 output:
   html_document:
+    highlight: textmate
     keep_md: yes
 ---
 
